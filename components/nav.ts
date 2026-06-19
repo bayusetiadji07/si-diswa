@@ -32,6 +32,12 @@ export const NAV_ITEMS: NavItem[] = [
     roles: ["siswa"],
   },
   {
+    href: "/dashboard/aturan",
+    label: "Daftar Peraturan",
+    icon: BookMarked,
+    roles: ["siswa", "guru"],
+  },
+  {
     href: "/dashboard/pengguna",
     label: "Manajemen Pengguna",
     icon: Users,

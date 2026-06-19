@@ -48,8 +48,8 @@ export interface LogPelanggaranView extends LogPelanggaran {
 
 /** Routes each role is allowed to reach (prefix match). */
 export const ROLE_ROUTES: Record<Role, string[]> = {
-  siswa: ["/dashboard", "/dashboard/saya"],
-  guru: ["/dashboard", "/dashboard/catat", "/dashboard/laporan", "/dashboard/surat"],
+  siswa: ["/dashboard", "/dashboard/saya", "/dashboard/aturan"],
+  guru: ["/dashboard", "/dashboard/catat", "/dashboard/laporan", "/dashboard/surat", "/dashboard/aturan"],
   bk: [
     "/dashboard",
     "/dashboard/peraturan",
