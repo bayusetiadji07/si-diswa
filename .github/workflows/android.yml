@@ -18,6 +18,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install deps & sync Capacitor
+        run: |
+          npm ci
+          npx cap sync android
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
