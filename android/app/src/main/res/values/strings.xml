@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Si Diswa</string>
+    <string name="title_activity_main">Si Diswa</string>
+    <string name="package_name">id.sch.smpn3besuki.sidiswa</string>
+    <string name="custom_url_scheme">id.sch.smpn3besuki.sidiswa</string>
+</resources>

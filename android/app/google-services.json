@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "987313262813",
+    "project_id": "si-diswa",
+    "storage_bucket": "si-diswa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:987313262813:android:43ef3cb5caf581c4a18b34",
+        "android_client_info": {
+          "package_name": "id.sch.smpn3besuki.sidiswa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZEV6c_FhNuSz7cZIlONEXhE2sRkkiXlo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
