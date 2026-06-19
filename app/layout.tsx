@@ -1,9 +1,16 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { SEKOLAH } from "@/lib/sekolah";
 
 export const metadata: Metadata = {
-  title: "Si Diswa — Sistem Disiplin Siswa",
-  description: "Aplikasi pencatatan dan monitoring kedisiplinan siswa.",
+  title: `${SEKOLAH.app} — ${SEKOLAH.nama}`,
+  description: `${SEKOLAH.appLong} ${SEKOLAH.nama}. Pencatatan, pembinaan, dan laporan kedisiplinan siswa.`,
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#4338ca",
 };
 
 export default function RootLayout({

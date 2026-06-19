@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, LogIn, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { LogIn, Loader2, ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { SEKOLAH } from "@/lib/sekolah";
+import Logo from "@/components/Logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,12 +36,10 @@ export default function LoginPage() {
       {/* Brand panel */}
       <div className="hidden lg:flex flex-col justify-between p-12 bg-[var(--color-brand)] text-white">
         <div className="flex items-center gap-3">
-          <div className="h-11 w-11 rounded-xl bg-white/15 grid place-items-center">
-            <ShieldCheck className="h-6 w-6" />
-          </div>
+          <Logo size={44} className="bg-white/15 p-1.5" />
           <div>
-            <p className="font-bold text-lg leading-tight">Si Diswa</p>
-            <p className="text-white/70 text-sm">Sistem Disiplin Siswa</p>
+            <p className="font-bold text-lg leading-tight">{SEKOLAH.app}</p>
+            <p className="text-white/70 text-sm">{SEKOLAH.nama}</p>
           </div>
         </div>
         <div>
@@ -51,7 +52,7 @@ export default function LoginPage() {
           </p>
         </div>
         <p className="text-white/60 text-sm">
-          &copy; {new Date().getFullYear()} Si Diswa. Sistem informasi sekolah.
+          &copy; {SEKOLAH.tahun()} {SEKOLAH.app} · {SEKOLAH.nama}.
         </p>
       </div>
 
@@ -59,12 +60,10 @@ export default function LoginPage() {
       <div className="flex items-center justify-center p-6 sm:p-10 bg-[var(--bg)]">
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="h-11 w-11 rounded-xl bg-[var(--color-brand)] grid place-items-center text-white">
-              <ShieldCheck className="h-6 w-6" />
-            </div>
+            <Logo size={44} rounded="rounded-xl" />
             <div>
-              <p className="font-bold text-lg leading-tight">Si Diswa</p>
-              <p className="text-[var(--text-2)] text-sm">Sistem Disiplin Siswa</p>
+              <p className="font-bold text-lg leading-tight">{SEKOLAH.app}</p>
+              <p className="text-[var(--text-2)] text-sm">{SEKOLAH.nama}</p>
             </div>
           </div>
 
@@ -124,6 +123,15 @@ export default function LoginPage() {
           <p className="mt-8 text-xs text-center text-[var(--text-3)]">
             Hubungi administrator sekolah bila lupa kata sandi.
           </p>
+          <div className="mt-4 text-center">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1 text-xs text-[var(--color-brand)] font-medium"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              Kembali ke beranda
+            </Link>
+          </div>
         </div>
       </div>
     </div>

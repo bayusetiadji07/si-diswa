@@ -147,6 +147,17 @@ body {
   background: #f8fafc;
 }
 
+/* ---------- Mobile sidebar drawer (deterministic, no Tailwind translate) ---------- */
+@media (max-width: 1023px) {
+  .app-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .app-sidebar.is-open {
+    transform: translateX(0);
+  }
+}
+
 /* ---------- Print: isolate report content only ---------- */
 @media print {
   @page {

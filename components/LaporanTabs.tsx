@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { User, Users, BarChart3, Printer, Search, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { fmtDate, MONTHS_ID } from "@/lib/format";
+import { SEKOLAH } from "@/lib/sekolah";
 
 interface LogRow {
   id: number;
@@ -61,7 +62,7 @@ export default function LaporanTabs() {
       </div>
 
       {/* Tab nav */}
-      <div className="no-print flex gap-1 border-b border-[var(--border)]">
+      <div className="no-print flex gap-1 border-b border-[var(--border)] overflow-x-auto">
         {tabs.map((t) => {
           const Icon = t.icon;
           const active = tab === t.key;
@@ -69,7 +70,7 @@ export default function LaporanTabs() {
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition ${
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition whitespace-nowrap ${
                 active
                   ? "border-[var(--color-brand)] text-[var(--color-brand)]"
                   : "border-transparent text-[var(--text-2)] hover:text-[var(--text)]"
@@ -109,8 +110,9 @@ function PrintButton() {
 function PrintHeader({ subtitle }: { subtitle: string }) {
   return (
     <div className="hidden print:block mb-4 text-center border-b border-slate-300 pb-3">
-      <h1 className="text-lg font-bold">SISTEM DISIPLIN SISWA (Si Diswa)</h1>
-      <p className="text-sm">{subtitle}</p>
+      <h1 className="text-lg font-bold">{SEKOLAH.namaUpper}</h1>
+      <p className="text-xs">{SEKOLAH.alamat} · Telp. {SEKOLAH.telp}</p>
+      <p className="text-sm font-semibold mt-1">{subtitle}</p>
       <p className="text-xs text-slate-500">Dicetak: {fmtDate(new Date().toISOString())}</p>
     </div>
   );

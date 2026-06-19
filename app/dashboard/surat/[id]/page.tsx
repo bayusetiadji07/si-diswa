@@ -3,16 +3,11 @@ import { ArrowLeft } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { fmtDateTime } from "@/lib/format";
+import { SEKOLAH } from "@/lib/sekolah";
 import CetakButton from "@/components/CetakButton";
+import Logo from "@/components/Logo";
 
 export const dynamic = "force-dynamic";
-
-const SEKOLAH = {
-  pemda: "PEMERINTAH KABUPATEN SITUBONDO",
-  dinas: "DINAS PENDIDIKAN DAN KEBUDAYAAN",
-  nama: "SMP NEGERI 3 BESUKI",
-  alamat: "Jalan Gunung Ringgit No. 10, Besuki 68356 — Telp. 082233055896",
-};
 
 export default async function SuratPage({
   params,
@@ -72,11 +67,16 @@ export default async function SuratPage({
       {/* Surat resmi */}
       <div className="print-area card p-8 max-w-3xl mx-auto bg-white text-[13px] leading-relaxed">
         {/* Kop surat */}
-        <div className="text-center border-b-2 border-black pb-3 mb-5">
-          <p className="font-semibold">{SEKOLAH.pemda}</p>
-          <p className="font-semibold">{SEKOLAH.dinas}</p>
-          <p className="text-xl font-bold tracking-wide">{SEKOLAH.nama}</p>
-          <p className="text-xs">{SEKOLAH.alamat}</p>
+        <div className="flex items-center justify-center gap-4 border-b-2 border-black pb-3 mb-5">
+          <Logo size={64} rounded="rounded-md" className="shrink-0" />
+          <div className="text-center">
+            <p className="font-semibold">{SEKOLAH.pemda}</p>
+            <p className="font-semibold">{SEKOLAH.dinas}</p>
+            <p className="text-xl font-bold tracking-wide">{SEKOLAH.namaUpper}</p>
+            <p className="text-xs">
+              {SEKOLAH.alamat} — Telp. {SEKOLAH.telp}
+            </p>
+          </div>
         </div>
 
         <div className="text-center mb-5">

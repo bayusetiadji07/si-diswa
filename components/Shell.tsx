@@ -3,9 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShieldCheck, Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { navFor } from "@/components/nav";
 import { ROLE_LABEL, type ProfilUser } from "@/lib/types";
+import { SEKOLAH } from "@/lib/sekolah";
+import Logo from "@/components/Logo";
 
 export default function Shell({
   profile,
@@ -37,17 +39,15 @@ export default function Shell({
 
       {/* Sidebar */}
       <aside
-        className={`app-sidebar no-print fixed lg:static z-40 inset-y-0 left-0 w-64 bg-white border-r border-[var(--border)] flex flex-col transition-transform ${
-          open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        className={`app-sidebar no-print fixed lg:static z-40 inset-y-0 left-0 w-64 bg-white border-r border-[var(--border)] flex flex-col ${
+          open ? "is-open" : ""
         }`}
       >
         <div className="h-16 flex items-center gap-3 px-5 border-b border-[var(--border)]">
-          <div className="h-9 w-9 rounded-lg bg-[var(--color-brand)] grid place-items-center text-white">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <div className="leading-tight">
-            <p className="font-bold">Si Diswa</p>
-            <p className="text-xs text-[var(--text-3)]">Disiplin Siswa</p>
+          <Logo size={36} rounded="rounded-lg" />
+          <div className="leading-tight min-w-0">
+            <p className="font-bold">{SEKOLAH.app}</p>
+            <p className="text-xs text-[var(--text-3)] truncate">{SEKOLAH.nama}</p>
           </div>
         </div>
 
@@ -104,8 +104,9 @@ export default function Shell({
             >
               <X className="h-5 w-5" />
             </button>
-            <h1 className="font-semibold text-[var(--text)]">
-              Sistem Disiplin Siswa
+            <h1 className="font-semibold text-[var(--text)] truncate">
+              <span className="hidden sm:inline">{SEKOLAH.nama}</span>
+              <span className="sm:hidden">{SEKOLAH.app}</span>
             </h1>
           </div>
 
