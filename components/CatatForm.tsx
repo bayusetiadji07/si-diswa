@@ -5,6 +5,7 @@ import {
   Search, Upload, X, CheckCircle2, Loader2, FilePlus2, ImageIcon,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { compressImage } from "@/lib/imageCompress";
 import type { Peraturan, ProfilUser, TahapPembinaan } from "@/lib/types";
 
 export default function CatatForm({
@@ -112,11 +113,16 @@ export default function CatatForm({
       let buktiUrl: string | null = null;
 
       if (file) {
-        const ext = file.name.split(".").pop() ?? "jpg";
+        const compressed = await compressImage(file);
+        const ext = compressed.name.split(".").pop() ?? "webp";
         const path = `${siswa.id}/${Date.now()}.${ext}`;
         const { error: upErr } = await supabase.storage
           .from("bukti-pelanggaran")
-          .upload(path, file, { upsert: false });
+          .upload(path, compressed, {
+            upsert: false,
+            contentType: compressed.type,
+            cacheControl: "31536000", // 1 tahun (nama file unik) → caching agresif
+          });
         if (upErr) throw upErr;
         const { data } = supabase.storage.from("bukti-pelanggaran").getPublicUrl(path);
         buktiUrl = data.publicUrl;

@@ -3,15 +3,18 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  Search, Loader2, CheckCircle2, Clock, ImageIcon, ClipboardList, Printer,
+  Search, Loader2, CheckCircle2, Clock, ImageIcon, ClipboardList, Printer, Pencil, Trash2,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Lightbox from "@/components/Lightbox";
+import Modal from "@/components/Modal";
 import { fmtDateTime } from "@/lib/format";
+import type { Peraturan, TahapPembinaan } from "@/lib/types";
 
 interface Row {
   id: number;
   tanggal: string | null;
+  peraturan_id: number | null;
   catatan: string | null;
   langkah_pembinaan: string | null;
   tahap_ids: number[] | null;
@@ -26,6 +29,9 @@ export default function MonitoringTable() {
   const supabase = useMemo(() => createClient(), []);
   const [rows, setRows] = useState<Row[]>([]);
   const [tahapMap, setTahapMap] = useState<Record<number, string>>({});
+  const [tahapList, setTahapList] = useState<TahapPembinaan[]>([]);
+  const [peraturanList, setPeraturanList] = useState<Peraturan[]>([]);
+  const [mapping, setMapping] = useState<Record<number, number[]>>({});
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "proses" | "selesai">("all");
@@ -33,22 +39,47 @@ export default function MonitoringTable() {
   const [busyId, setBusyId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // edit
+  const [editing, setEditing] = useState<Row | null>(null);
+  const [eform, setEform] = useState({
+    peraturan_id: "" as number | "",
+    status: "proses" as "proses" | "selesai",
+    catatan: "",
+    langkah_pembinaan: "",
+  });
+  const [eTahap, setETahap] = useState<Set<number>>(new Set());
+  const [saving, setSaving] = useState(false);
+
+  // delete
+  const [toDelete, setToDelete] = useState<Row | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
   async function load() {
     setLoading(true);
-    const [{ data, error }, { data: tah }] = await Promise.all([
+    const [{ data, error }, { data: tah }, { data: per }, { data: map }] = await Promise.all([
       supabase
         .from("log_pelanggaran")
         .select(
-          "id, tanggal, catatan, langkah_pembinaan, tahap_ids, bukti_url, status, siswa:siswa_id(nama, kelas), peraturan(nama_pelanggaran, bobot_poin), guru:guru_id(nama)"
+          "id, tanggal, peraturan_id, catatan, langkah_pembinaan, tahap_ids, bukti_url, status, siswa:siswa_id(nama, kelas), peraturan(nama_pelanggaran, bobot_poin), guru:guru_id(nama)"
         )
         .order("tanggal", { ascending: false }),
-      supabase.from("tahap_pembinaan").select("id, nama"),
+      supabase.from("tahap_pembinaan").select("*").order("urutan"),
+      supabase.from("peraturan").select("*").order("kategori").order("nama_pelanggaran"),
+      supabase.from("peraturan_pembinaan").select("peraturan_id, tahap_id"),
     ]);
     if (error) setError(error.message);
     setRows((data ?? []) as any);
+    const tl = (tah ?? []) as TahapPembinaan[];
+    setTahapList(tl);
     const m: Record<number, string> = {};
-    (tah ?? []).forEach((t: any) => (m[t.id] = t.nama));
+    tl.forEach((t) => (m[t.id] = t.nama));
     setTahapMap(m);
+    setPeraturanList((per ?? []) as Peraturan[]);
+    const mp: Record<number, number[]> = {};
+    (map ?? []).forEach((r: any) => {
+      (mp[r.peraturan_id] ??= []).push(r.tahap_id);
+    });
+    setMapping(mp);
     setLoading(false);
   }
 
@@ -60,16 +91,71 @@ export default function MonitoringTable() {
   async function toggleStatus(r: Row) {
     setBusyId(r.id);
     const next = r.status === "proses" ? "selesai" : "proses";
+    const { error } = await supabase.from("log_pelanggaran").update({ status: next }).eq("id", r.id);
+    setBusyId(null);
+    if (error) return setError(error.message);
+    setRows((prev) => prev.map((x) => (x.id === r.id ? { ...x, status: next } : x)));
+  }
+
+  function openEdit(r: Row) {
+    setEditing(r);
+    setEform({
+      peraturan_id: r.peraturan_id ?? "",
+      status: r.status,
+      catatan: r.catatan ?? "",
+      langkah_pembinaan: r.langkah_pembinaan ?? "",
+    });
+    setETahap(new Set(r.tahap_ids ?? []));
+    setError(null);
+  }
+
+  function toggleETahap(id: number) {
+    setETahap((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  async function saveEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editing) return;
+    setSaving(true);
+    setError(null);
     const { error } = await supabase
       .from("log_pelanggaran")
-      .update({ status: next })
-      .eq("id", r.id);
-    setBusyId(null);
-    if (error) {
-      setError(error.message);
-      return;
+      .update({
+        peraturan_id: eform.peraturan_id || null,
+        status: eform.status,
+        catatan: eform.catatan.trim() || null,
+        langkah_pembinaan: eform.langkah_pembinaan.trim() || null,
+        tahap_ids: Array.from(eTahap),
+      })
+      .eq("id", editing.id);
+    setSaving(false);
+    if (error) return setError(error.message);
+    setEditing(null);
+    load();
+  }
+
+  async function confirmDelete() {
+    if (!toDelete) return;
+    setDeleting(true);
+    setError(null);
+    // hapus bukti dari storage (best-effort)
+    if (toDelete.bukti_url) {
+      const marker = "/bukti-pelanggaran/";
+      const idx = toDelete.bukti_url.indexOf(marker);
+      if (idx >= 0) {
+        const path = decodeURIComponent(toDelete.bukti_url.slice(idx + marker.length));
+        await supabase.storage.from("bukti-pelanggaran").remove([path]);
+      }
     }
-    setRows((prev) => prev.map((x) => (x.id === r.id ? { ...x, status: next } : x)));
+    const { error } = await supabase.from("log_pelanggaran").delete().eq("id", toDelete.id);
+    setDeleting(false);
+    if (error) return setError(error.message);
+    setToDelete(null);
+    load();
   }
 
   const filtered = rows.filter((r) => {
@@ -80,6 +166,15 @@ export default function MonitoringTable() {
     const matchesStatus = statusFilter === "all" || r.status === statusFilter;
     return matchesQ && matchesStatus;
   });
+
+  // opsi tahap utk pelanggaran terpilih di form edit (gabung dgn yang sudah terpilih)
+  const editTahapOptions = (() => {
+    const ids = new Set<number>([
+      ...(eform.peraturan_id ? mapping[eform.peraturan_id] ?? [] : []),
+      ...Array.from(eTahap),
+    ]);
+    return tahapList.filter((t) => ids.has(t.id));
+  })();
 
   return (
     <div className="space-y-6">
@@ -141,7 +236,7 @@ export default function MonitoringTable() {
                   <th>Pembinaan</th>
                   <th>Bukti</th>
                   <th>Status</th>
-                  <th>Surat</th>
+                  <th className="text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -178,6 +273,7 @@ export default function MonitoringTable() {
                           <img
                             src={r.bukti_url}
                             alt="Bukti"
+                            loading="lazy"
                             className="h-12 w-12 rounded-lg object-cover border border-[var(--border)] hover:ring-2 hover:ring-[var(--color-brand)]"
                           />
                         </button>
@@ -205,13 +301,29 @@ export default function MonitoringTable() {
                       </button>
                     </td>
                     <td>
-                      <Link
-                        href={`/dashboard/surat/${r.id}`}
-                        className="btn btn-ghost btn-sm"
-                        title="Cetak surat resmi"
-                      >
-                        <Printer className="h-4 w-4" />
-                      </Link>
+                      <div className="flex items-center justify-end gap-1">
+                        <Link
+                          href={`/dashboard/surat/${r.id}`}
+                          className="btn btn-ghost btn-sm"
+                          title="Cetak surat resmi"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Link>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => openEdit(r)}
+                          title="Edit pelanggaran"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          className="btn btn-ghost btn-sm text-red-600"
+                          onClick={() => setToDelete(r)}
+                          title="Hapus pelanggaran"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -220,6 +332,110 @@ export default function MonitoringTable() {
           </div>
         )}
       </div>
+
+      {/* Edit modal */}
+      <Modal open={!!editing} onClose={() => setEditing(null)} title="Edit Pelanggaran">
+        {editing && (
+          <form onSubmit={saveEdit} className="space-y-4">
+            <p className="text-sm text-[var(--text-2)]">
+              Siswa: <strong className="text-[var(--text)]">{editing.siswa?.nama}</strong>{" "}
+              ({editing.siswa?.kelas ?? "-"})
+            </p>
+            <div>
+              <label className="label">Jenis Pelanggaran</label>
+              <select
+                className="select"
+                value={eform.peraturan_id}
+                onChange={(e) => setEform({ ...eform, peraturan_id: e.target.value ? Number(e.target.value) : "" })}
+                required
+              >
+                <option value="">— Pilih pelanggaran —</option>
+                {peraturanList.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.kategori ? `[${p.kategori}] ` : ""}{p.nama_pelanggaran} ({p.bobot_poin} poin)
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">Status</label>
+              <select
+                className="select"
+                value={eform.status}
+                onChange={(e) => setEform({ ...eform, status: e.target.value as any })}
+              >
+                <option value="proses">Proses</option>
+                <option value="selesai">Selesai</option>
+              </select>
+            </div>
+            {editTahapOptions.length > 0 && (
+              <div>
+                <label className="label">Tahap Pembinaan</label>
+                <div className="grid sm:grid-cols-2 gap-1 border border-[var(--border)] rounded-lg p-2 max-h-44 overflow-y-auto">
+                  {editTahapOptions.map((t) => (
+                    <label key={t.id} className="flex items-start gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="mt-0.5"
+                        checked={eTahap.has(t.id)}
+                        onChange={() => toggleETahap(t.id)}
+                      />
+                      <span className="text-sm">{t.nama}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div>
+              <label className="label">Kronologi (Catatan)</label>
+              <textarea
+                className="textarea"
+                rows={2}
+                value={eform.catatan}
+                onChange={(e) => setEform({ ...eform, catatan: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="label">Catatan Pembinaan Tambahan</label>
+              <textarea
+                className="textarea"
+                rows={2}
+                value={eform.langkah_pembinaan}
+                onChange={(e) => setEform({ ...eform, langkah_pembinaan: e.target.value })}
+              />
+            </div>
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            <div className="flex justify-end gap-2 pt-2">
+              <button type="button" className="btn btn-ghost" onClick={() => setEditing(null)}>
+                Batal
+              </button>
+              <button type="submit" className="btn btn-primary" disabled={saving}>
+                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                Simpan Perubahan
+              </button>
+            </div>
+          </form>
+        )}
+      </Modal>
+
+      {/* Delete confirm */}
+      <Modal open={!!toDelete} onClose={() => setToDelete(null)} title="Hapus Pelanggaran" maxWidth="max-w-md">
+        <p className="text-[var(--text-2)]">
+          Yakin menghapus pelanggaran{" "}
+          <strong className="text-[var(--text)]">{toDelete?.peraturan?.nama_pelanggaran}</strong> oleh{" "}
+          <strong className="text-[var(--text)]">{toDelete?.siswa?.nama}</strong>? Bukti foto juga
+          ikut terhapus dan tindakan ini tidak dapat dibatalkan.
+        </p>
+        <div className="flex justify-end gap-2 pt-5">
+          <button className="btn btn-ghost" onClick={() => setToDelete(null)}>
+            Batal
+          </button>
+          <button className="btn btn-danger" onClick={confirmDelete} disabled={deleting}>
+            {deleting && <Loader2 className="h-4 w-4 animate-spin" />}
+            Hapus
+          </button>
+        </div>
+      </Modal>
 
       <Lightbox src={lightbox} onClose={() => setLightbox(null)} />
     </div>
