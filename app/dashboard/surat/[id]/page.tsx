@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import { fmtDateTime } from "@/lib/format";
 import { SEKOLAH } from "@/lib/sekolah";
 import CetakButton from "@/components/CetakButton";
-import Logo from "@/components/Logo";
 
 export const dynamic = "force-dynamic";
 
@@ -68,7 +67,8 @@ export default async function SuratPage({
       <div className="print-area card p-8 max-w-3xl mx-auto bg-white text-[13px] leading-relaxed">
         {/* Kop surat */}
         <div className="flex items-center justify-center gap-4 border-b-2 border-black pb-3 mb-5">
-          <Logo size={64} rounded="rounded-md" className="shrink-0" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logosekolah.png" alt="Logo Sekolah" className="h-16 w-16 object-contain shrink-0" />
           <div className="text-center">
             <p className="font-semibold">{SEKOLAH.pemda}</p>
             <p className="font-semibold">{SEKOLAH.dinas}</p>

@@ -3,6 +3,7 @@ import {
   LogIn, FilePlus2, ClipboardList, BarChart3, ListChecks, ShieldCheck, ArrowRight,
 } from "lucide-react";
 import Logo from "@/components/Logo";
+import DevCredit from "@/components/DevCredit";
 import { SEKOLAH } from "@/lib/sekolah";
 
 export const dynamic = "force-dynamic";
@@ -130,6 +131,7 @@ export default function Beranda() {
           <p className="mt-3 text-xs text-[var(--text-3)]">
             &copy; {SEKOLAH.tahun()} {SEKOLAH.app} — {SEKOLAH.appLong}.
           </p>
+          <DevCredit className="mt-1" />
         </div>
       </footer>
     </div>

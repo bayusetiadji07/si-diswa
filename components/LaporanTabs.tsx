@@ -109,11 +109,21 @@ function PrintButton() {
 
 function PrintHeader({ subtitle }: { subtitle: string }) {
   return (
-    <div className="hidden print:block mb-4 text-center border-b border-slate-300 pb-3">
-      <h1 className="text-lg font-bold">{SEKOLAH.namaUpper}</h1>
-      <p className="text-xs">{SEKOLAH.alamat} · Telp. {SEKOLAH.telp}</p>
-      <p className="text-sm font-semibold mt-1">{subtitle}</p>
-      <p className="text-xs text-slate-500">Dicetak: {fmtDate(new Date().toISOString())}</p>
+    <div className="hidden print:block mb-4 border-b-2 border-black pb-3">
+      <div className="flex items-center justify-center gap-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logodinas.png" alt="Logo Dinas" className="h-16 w-auto object-contain shrink-0" />
+        <div className="text-center">
+          <p className="text-sm font-semibold">{SEKOLAH.pemda}</p>
+          <p className="text-sm font-semibold">{SEKOLAH.dinas}</p>
+          <h1 className="text-lg font-bold">{SEKOLAH.namaUpper}</h1>
+          <p className="text-xs">{SEKOLAH.alamat} · Telp. {SEKOLAH.telp}</p>
+        </div>
+      </div>
+      <p className="text-sm font-semibold text-center mt-2 underline">{subtitle}</p>
+      <p className="text-xs text-slate-500 text-center">
+        Dicetak: {fmtDate(new Date().toISOString())}
+      </p>
     </div>
   );
 }

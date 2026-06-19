@@ -8,6 +8,7 @@ import { navFor } from "@/components/nav";
 import { ROLE_LABEL, type ProfilUser } from "@/lib/types";
 import { SEKOLAH } from "@/lib/sekolah";
 import Logo from "@/components/Logo";
+import DevCredit from "@/components/DevCredit";
 
 export default function Shell({
   profile,
@@ -76,13 +77,14 @@ export default function Shell({
           })}
         </nav>
 
-        <div className="p-3 border-t border-[var(--border)]">
+        <div className="p-3 border-t border-[var(--border)] space-y-3">
           <form action="/auth/signout" method="post">
             <button className="btn btn-ghost w-full" type="submit">
               <LogOut className="h-4 w-4" />
               Keluar
             </button>
           </form>
+          <DevCredit className="text-center leading-snug" />
         </div>
       </aside>
 

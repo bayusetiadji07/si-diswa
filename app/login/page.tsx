@@ -7,6 +7,7 @@ import { LogIn, Loader2, ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { SEKOLAH } from "@/lib/sekolah";
 import Logo from "@/components/Logo";
+import DevCredit from "@/components/DevCredit";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,27 +34,14 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-      {/* Brand panel */}
-      <div className="hidden lg:flex flex-col justify-between p-12 bg-[var(--color-brand)] text-white">
-        <div className="flex items-center gap-3">
-          <Logo size={44} className="bg-white/15 p-1.5" />
-          <div>
-            <p className="font-bold text-lg leading-tight">{SEKOLAH.app}</p>
-            <p className="text-white/70 text-sm">{SEKOLAH.nama}</p>
-          </div>
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold leading-snug">
-            Membangun budaya disiplin yang terukur & transparan.
-          </h1>
-          <p className="mt-4 text-white/80 max-w-md">
-            Catat pelanggaran, pantau tren poin, dan susun laporan pembinaan
-            siswa dalam satu platform terintegrasi.
-          </p>
-        </div>
-        <p className="text-white/60 text-sm">
-          &copy; {SEKOLAH.tahun()} {SEKOLAH.app} · {SEKOLAH.nama}.
-        </p>
+      {/* Brand panel — gambar saja, tanpa teks */}
+      <div className="hidden lg:block bg-[var(--color-brand)]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/halaman-login.webp"
+          alt="Si Diswa"
+          className="h-full w-full object-cover"
+        />
       </div>
 
       {/* Form panel */}
@@ -132,6 +120,8 @@ export default function LoginPage() {
               Kembali ke beranda
             </Link>
           </div>
+
+          <DevCredit className="mt-8 text-center" />
         </div>
       </div>
     </div>
