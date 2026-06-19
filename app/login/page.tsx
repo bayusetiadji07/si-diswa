@@ -121,16 +121,9 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-8 text-xs text-[var(--text-2)] bg-white border border-[var(--border)] rounded-xl p-4">
-            <p className="font-semibold text-[var(--text)] mb-2">Akun demo</p>
-            <ul className="space-y-1">
-              <li>Admin: <code>admin@sidiswa.id</code></li>
-              <li>Guru BK: <code>bk@sidiswa.id</code></li>
-              <li>Guru: <code>guru@sidiswa.id</code></li>
-              <li>Siswa: <code>ahmad@sidiswa.id</code></li>
-            </ul>
-            <p className="mt-2">Kata sandi semua akun: <code>sidiswa123</code></p>
-          </div>
+          <p className="mt-8 text-xs text-center text-[var(--text-3)]">
+            Hubungi administrator sekolah bila lupa kata sandi.
+          </p>
         </div>
       </div>
     </div>

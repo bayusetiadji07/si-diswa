@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
-  Search, Loader2, CheckCircle2, Clock, ImageIcon, ClipboardList, Trash2,
+  Search, Loader2, CheckCircle2, Clock, ImageIcon, ClipboardList, Printer,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Lightbox from "@/components/Lightbox";
@@ -140,6 +141,7 @@ export default function MonitoringTable() {
                   <th>Pembinaan</th>
                   <th>Bukti</th>
                   <th>Status</th>
+                  <th>Surat</th>
                 </tr>
               </thead>
               <tbody>
@@ -201,6 +203,15 @@ export default function MonitoringTable() {
                         )}
                         {r.status === "selesai" ? "Selesai" : "Proses"}
                       </button>
+                    </td>
+                    <td>
+                      <Link
+                        href={`/dashboard/surat/${r.id}`}
+                        className="btn btn-ghost btn-sm"
+                        title="Cetak surat resmi"
+                      >
+                        <Printer className="h-4 w-4" />
+                      </Link>
                     </td>
                   </tr>
                 ))}

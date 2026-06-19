@@ -408,6 +408,28 @@ function BulananReport({ rows }: { rows: LogRow[] }) {
   }, [rows, year]);
   const totalYear = monthly.reduce((a, b) => a + b, 0);
 
+  // Rincian per jenis pelanggaran (bahan evaluasi sekolah)
+  const perJenis = useMemo(() => {
+    const map = new Map<string, { kategori: string; kasus: number; poin: number }>();
+    rows
+      .filter((r) => r.tanggal && new Date(r.tanggal).getFullYear() === year)
+      .forEach((r) => {
+        const nama = r.peraturan?.nama_pelanggaran ?? "Lainnya";
+        const cur = map.get(nama) ?? {
+          kategori: r.peraturan?.kategori ?? "—",
+          kasus: 0,
+          poin: 0,
+        };
+        cur.kasus += 1;
+        cur.poin += r.peraturan?.bobot_poin ?? 0;
+        map.set(nama, cur);
+      });
+    return Array.from(map.entries())
+      .map(([nama, v]) => ({ nama, ...v }))
+      .sort((a, b) => b.kasus - a.kasus || b.poin - a.poin);
+  }, [rows, year]);
+  const totalPoinYear = perJenis.reduce((s, r) => s + r.poin, 0);
+
   return (
     <div className="space-y-4">
       <div className="no-print card p-4 flex flex-wrap items-end gap-3">
@@ -482,6 +504,53 @@ function BulananReport({ rows }: { rows: LogRow[] }) {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </div>
+
+        {/* Rincian per jenis pelanggaran — bahan evaluasi */}
+        <div className="card">
+          <div className="px-5 py-4 border-b border-[var(--border)]">
+            <h3 className="font-semibold">Rincian per Jenis Pelanggaran ({year})</h3>
+            <p className="text-xs text-[var(--text-2)]">
+              Untuk bahan evaluasi sekolah — diurutkan dari kasus terbanyak.
+            </p>
+          </div>
+          {perJenis.length === 0 ? (
+            <p className="text-sm text-[var(--text-3)] p-6 text-center">
+              Tidak ada data untuk tahun ini.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th className="w-10">No</th>
+                    <th>Jenis Pelanggaran</th>
+                    <th>Kategori</th>
+                    <th>Jumlah Kasus</th>
+                    <th>Total Poin</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {perJenis.map((r, i) => (
+                    <tr key={r.nama}>
+                      <td className="text-[var(--text-3)]">{i + 1}</td>
+                      <td className="font-medium">{r.nama}</td>
+                      <td>{r.kategori}</td>
+                      <td>{r.kasus}</td>
+                      <td className="font-semibold text-rose-600">{r.poin}</td>
+                    </tr>
+                  ))}
+                  <tr className="font-semibold bg-slate-50">
+                    <td colSpan={3} className="text-right">
+                      Total
+                    </td>
+                    <td>{totalYear}</td>
+                    <td className="text-rose-600">{totalPoinYear}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           )}
         </div>

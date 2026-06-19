@@ -6,6 +6,7 @@ import {
   BarChart3,
   User,
   ListChecks,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import type { Role } from "@/lib/types";
@@ -29,6 +30,12 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Pelanggaran Saya",
     icon: User,
     roles: ["siswa"],
+  },
+  {
+    href: "/dashboard/pengguna",
+    label: "Manajemen Pengguna",
+    icon: Users,
+    roles: ["admin"],
   },
   {
     href: "/dashboard/peraturan",
