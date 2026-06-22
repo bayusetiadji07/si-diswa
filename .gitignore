@@ -8,3 +8,8 @@ next-env.d.ts
 .DS_Store
 *.pem
 npm-debug.log*
+
+# Android signing keystore (jangan commit)
+*.keystore
+*.jks
+android/app/*.keystore

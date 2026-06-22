@@ -37,14 +37,23 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build debug APK
+      - name: Decode signing keystore
+        run: echo "$ANDROID_KEYSTORE_B64" | base64 -d > android/app/sidiswa.keystore
+        env:
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+
+      - name: Build signed release APK
         working-directory: android
+        env:
+          ANDROID_KEYSTORE_PATH: sidiswa.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace
+          ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Rename APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk si-diswa.apk
+        run: cp android/app/build/outputs/apk/release/app-release.apk si-diswa.apk
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
